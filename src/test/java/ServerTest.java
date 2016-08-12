@@ -2,6 +2,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.PrintStream;
 
 import static org.junit.Assert.assertEquals;
@@ -11,6 +12,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class ServerTest {
 
+    public static final String SMTP_MESSAGE_FOLDER = "/Users/qinwenshi/Desktop/fakeSMTP/messages";
     private SystemExitStub systemExitStub;
     private ByteArrayOutputStream outputStream;
 
@@ -60,10 +62,18 @@ public class ServerTest {
     @Test
     public void x() throws Exception {
         setupLoopingAndSleeping();
+        int fileCount = getSentMessageCount();
 
         Server.main(new String[]{"127.0.0.1", "pop.163.com", "fifty5cup@163.com", "shiqinwen01", "emailList.txt","1"});
 
         assertEquals(outputStream.toString(), "Now sleeping for 1 minutes\n");
+        assertEquals(fileCount + 1, getSentMessageCount());
+
+
+    }
+    
+    private int getSentMessageCount() {
+        return new File(SMTP_MESSAGE_FOLDER).list().length;
     }
 
     private void setupLoopingAndSleeping() {
