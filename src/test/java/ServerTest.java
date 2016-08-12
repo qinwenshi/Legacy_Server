@@ -34,8 +34,7 @@ public class ServerTest {
     }
 
     @Test
-    public void x()  {
-
+    public void exitWhenLessThan6Parameters()  {
         try {
             Server.main(new String[]{"a", "b", "c", "d"});
         } catch (Exception e) {
