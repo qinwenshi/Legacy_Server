@@ -66,8 +66,8 @@ public class Server {
 
 
 	private boolean debugOn = false;
-	private String _smtpHost = null, _pop3Host = null, _user = null,
-			_password = null, _listFile = null, _fromName = null;
+	//private String _smtpHost = null, _pop3Host = null, _user = null,
+	//		_password = null, _listFile = null, _fromName = null;
 	private InternetAddress[] toList = null;
 
 
@@ -133,13 +133,21 @@ public class Server {
 		while (getLoopInstance().shouldContinue()) {
 			if (ls.debugOn)
 				System.out.println(new Date() + "> " + "SESSION START");
-			ls._smtpHost = smtpHost;
-			ls._pop3Host = pop3Host;
-			ls._user = user;
-			ls._password = password;
-			ls._listFile = emailListFile;
+//			ls._smtpHost = smtpHost;
+//			ls._pop3Host = pop3Host;
+//			ls._user = user;
+//			ls._password = password;
+//			ls._listFile = emailListFile;
+
+			String ls_smtpHost = smtpHost,
+			ls_pop3Host = pop3Host,
+			ls_user = user,
+			ls_password = password,
+			ls_listFile = emailListFile,
+					ls_fromName = null;
+
 			if (fromName != null)
-				ls._fromName = fromName;
+				ls_fromName = fromName;
 			
 			// Read in email list file into java.util.Vector
 			//
@@ -171,7 +179,7 @@ public class Server {
 			// Connect to host
 			//
 			Store store = session.getStore(Server.POP_MAIL);
-			store.connect(pop3Host, -1, ls._user, ls._password);
+			store.connect(pop3Host, -1, ls_user, ls_password);
 			
 			// Open the default folder
 			//
@@ -211,7 +219,7 @@ public class Server {
 				for (int i = 0; i < messages.length; i++) {
 					if (!messages[i].isSet(Flags.Flag.SEEN)) {
 						Message message = messages[i];
-						String replyTo = ls._user, subject, xMailer, messageText;
+						String replyTo = ls_user, subject, xMailer, messageText;
 						Date sentDate;
 						int size;
 						Address[] a = null;
@@ -227,22 +235,22 @@ public class Server {
 						String[] hdrs = message.getHeader("X-Mailer");
 						if (hdrs != null)
 							xMailer = hdrs[0];
-						String from = ls._user;
+						String from = ls_user;
 						
 						// Send message
 						//
 						// create some properties and get the default Session
 						//
 						Properties props = new Properties();
-						props.put("mail.smtp.host", ls._smtpHost);
+						props.put("mail.smtp.host", ls_smtpHost);
 						Session session1 = Session.getDefaultInstance(props, null);
 						
 						// create a message
 						//
 						Address replyToList[] = { new InternetAddress(replyTo) };
 						Message newMessage = new MimeMessage(session1);
-						if (ls._fromName != null)
-							newMessage.setFrom(new InternetAddress(from, ls._fromName
+						if (ls_fromName != null)
+							newMessage.setFrom(new InternetAddress(from, ls_fromName
 									+ " on behalf of " + replyTo));
 						else
 							newMessage.setFrom(new InternetAddress(from));
@@ -271,7 +279,7 @@ public class Server {
 						// Send newMessage
 						//
 						Transport transport = session1.getTransport(Server.SMTP_MAIL);
-						transport.connect(ls._smtpHost, ls._user, ls._password);
+						transport.connect(ls_smtpHost, ls_user, ls_password);
 						transport.sendMessage(newMessage, ls.toList);
 					}
 					messages[i].setFlag(Flags.Flag.DELETED, true);
