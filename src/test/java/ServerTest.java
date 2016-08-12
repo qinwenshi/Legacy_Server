@@ -86,13 +86,27 @@ public class ServerTest {
     @Test
     public void test_log_when_mail_box_is_not_empty() throws Exception {
         setupLoopingAndSleeping();
-
-        MailLogger logger = new MailLogger(true);
-        MailLogger.setLoggerInstane(logger);
+        injectEnabledLogger();
 
         Server.main(new String[]{"127.0.0.1", "pop.163.com", "fifty5cup@163.com", "shiqinwen01", "emailList.txt","1"});
         String output = outputStream.toString();
         assertEquals(output.split("\\n").length, 5);
+    }
+
+
+    @Test
+    public void test_log_when_mail_box_is_empty() throws Exception {
+        setupLoopingAndSleeping();
+        injectEnabledLogger();
+
+        Server.main(new String[]{"127.0.0.1", "pop.163.com", "fifty5cup@163.com", "shiqinwen01", "emailList.txt","1"});
+        String output = outputStream.toString();
+        assertEquals(output.split("\\n").length, 4);
+    }
+
+    private void injectEnabledLogger() {
+        MailLogger logger = new MailLogger(true);
+        MailLogger.setLoggerInstance(logger);
     }
 
     private MimeMessage latestMail(String dir) throws IOException, MessagingException {

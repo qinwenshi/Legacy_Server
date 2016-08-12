@@ -18,7 +18,7 @@ public class MailLogger {
         return mailLogger;
     }
 
-    public static void setLoggerInstane(MailLogger instance) {
+    public static void setLoggerInstance(MailLogger instance) {
         mailLogger = instance;
     }
 

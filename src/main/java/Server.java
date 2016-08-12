@@ -102,27 +102,25 @@ public class Server {
 			getSystemExitInstance().invoke(1);
 		}
 		boolean debugOn = false;
-		// Assign command line arguments to meaningful variable names
-		//
-		String smtpHost = args[0], pop3Host = args[1], user = args[2], password = args[3], emailListFile = args[4], fromName = null;
+		String smtpHost = args[0],
+				pop3Host = args[1],
+				user = args[2],
+				password = args[3],
+				emailListFile = args[4],
+				fromName = null;
 
 		int checkPeriod = Integer.parseInt(args[5]);
 
 		if (args.length > 6)
 			fromName = args[6];
 
-		Server ls = new Server();
-
 		while (getLoopInstance().shouldContinue()) {
 
-			MailLogger.getLoggerInstance().log(new Date() + "> " + "SESSION START");
+			MailLogger.getLoggerInstance()
+					.log(new Date() + "> " + "SESSION START");
 
-			String ls_fromName = null;
-
-			if (fromName != null)
-				ls_fromName = fromName;
-
-			Pop3MailBox pop3MailBox = new Pop3MailBox(pop3Host, user, password, debugOn);
+			Pop3MailBox pop3MailBox
+					= new Pop3MailBox(pop3Host, user, password, debugOn);
 
 			pop3MailBox.open();
 
@@ -130,7 +128,7 @@ public class Server {
 				pop3MailBox.closeEmptyFolder();
 			}
 			else{
-				pop3MailBox.batchReplayMessages(smtpHost, user, password, ls_fromName, emailListFile);
+				pop3MailBox.batchReplayMessages(smtpHost, user, password, fromName, emailListFile);
 				pop3MailBox.closeFolder();
 			}
 
