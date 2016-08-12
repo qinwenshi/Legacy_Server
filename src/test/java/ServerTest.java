@@ -59,12 +59,16 @@ public class ServerTest {
 
     @Test
     public void x() throws Exception {
-        Server.setLoopInstance(new LoopOnce());
-        Server.setSleepObject(new WakeupImmediately());
+        setupLoopingAndSleeping();
 
         Server.main(new String[]{"127.0.0.1", "pop.163.com", "fifty5cup@163.com", "shiqinwen01", "emailList.txt","1"});
 
         assertEquals(outputStream.toString(), "Now sleeping for 1 minutes\n");
+    }
+
+    private void setupLoopingAndSleeping() {
+        Server.setLoopInstance(new LoopOnce());
+        Server.setSleepObject(new WakeupImmediately());
     }
 
     private class WakeupImmediately extends Sleep{
