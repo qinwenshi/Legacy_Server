@@ -1,7 +1,9 @@
-import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by qinwenshi on 8/12/16.
@@ -17,18 +19,26 @@ public class ServerTest {
 
     }
 
-    @Rule
-    public ExpectedException thrown= ExpectedException.none();
-
-
     @Test
-    public void x() throws Exception {
+    public void x()  {
         SystemExitStub systemExitStub = new SystemExitStub();
         Server.setSystemExit(systemExitStub);
-        thrown.expect(Exception.class);
-        thrown.expectMessage("System Exit with Status 1");
 
-        Server.main(new String[]{"a", "b", "c", "d"});;
-        Assert.assertEquals(systemExitStub.statusCode, 1);
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+        System.setErr(new PrintStream(outContent));
+        System.setOut(new PrintStream(outContent));
+
+        try {
+            Server.main(new String[]{"a", "b", "c", "d"});
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        assertEquals(outContent.toString(),
+                "Usage: java Server SMTPHost POP3Host user password EmailListFile CheckPeriodFromName\n" +
+                "System Exit with Status 1\n");
+
+        assertEquals(systemExitStub.statusCode, 1);
     }
 }
