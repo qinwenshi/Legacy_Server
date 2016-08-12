@@ -70,6 +70,7 @@ public class Server {
 			_password = null, _listFile = null, _fromName = null;
 	private InternetAddress[] toList = null;
 
+
 	private static SystemExit systemExit;
 
 	public static SystemExit getSystemExitInstance(){
@@ -80,6 +81,17 @@ public class Server {
 
 	public static void setSystemExit(SystemExit instance){
 		systemExit = instance;
+	}
+
+	private static Loop loop;
+	public static Loop getLoopInstance(){
+		if(loop == null)
+			loop = new Loop();
+		return loop;
+	}
+
+	public static void setLoopInstance(Loop instance){
+		loop = instance;
 	}
 	/**
 	 * main() is used to start an instance of the Server
@@ -106,7 +118,7 @@ public class Server {
 		Server ls = new Server();
 		ls.debugOn = false;
 
-		while (true) {
+		while (getLoopInstance().shouldContinue()) {
 			if (ls.debugOn)
 				System.out.println(new Date() + "> " + "SESSION START");
 			ls._smtpHost = smtpHost;

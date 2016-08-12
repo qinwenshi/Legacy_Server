@@ -59,6 +59,18 @@ public class ServerTest {
 
     @Test
     public void x() throws Exception {
-        Server.main(new String[]{"smtp.163.com", "pop.163.com", ",fifty5cup@163.com", "shiqinwen01","emailList.txt","1"});
+        LoopOnce loopOnce = new LoopOnce();
+        Server.setLoopInstance(loopOnce);
+
+        Server.main(new String[]{"127.0.0.1", "pop.163.com", "fifty5cup@163.com", "shiqinwen01", "emailList.txt","1"});
+    }
+
+    private class LoopOnce extends Loop{
+        private int remainingLoopingCount = 1;
+
+        @Override
+        public boolean shouldContinue() {
+            return remainingLoopingCount-- > 0;
+        }
     }
 }
