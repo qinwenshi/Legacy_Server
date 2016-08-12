@@ -59,6 +59,6 @@ public class ServerTest {
 
     @Test
     public void x() throws Exception {
-        Server.main(new String[]{"smtp.163.com", "pop.163.com", ",fifty5cup@163.com", "shiqinwen01","a","1"});
+        Server.main(new String[]{"smtp.163.com", "pop.163.com", ",fifty5cup@163.com", "shiqinwen01","emailList.txt","1"});
     }
 }
