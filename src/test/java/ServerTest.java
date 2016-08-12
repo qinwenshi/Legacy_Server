@@ -56,4 +56,9 @@ public class ServerTest {
         System.setErr(new PrintStream(outputStream));
         System.setOut(new PrintStream(outputStream));
     }
+
+    @Test
+    public void x() throws Exception {
+        Server.main(new String[]{"smtp.163.com", "pop.163.com", ",fifty5cup@163.com", "shiqinwen01","a","1"});
+    }
 }
