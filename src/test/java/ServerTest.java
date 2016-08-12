@@ -59,10 +59,19 @@ public class ServerTest {
 
     @Test
     public void x() throws Exception {
-        LoopOnce loopOnce = new LoopOnce();
-        Server.setLoopInstance(loopOnce);
+        Server.setLoopInstance(new LoopOnce());
+        Server.setSleepObject(new WakeupImmediately());
 
         Server.main(new String[]{"127.0.0.1", "pop.163.com", "fifty5cup@163.com", "shiqinwen01", "emailList.txt","1"});
+
+        assertEquals(outputStream.toString(), "Now sleeping for 1 minutes\n");
+    }
+
+    private class WakeupImmediately extends Sleep{
+        @Override
+        public void forMinutes(int minutes) throws InterruptedException {
+            System.out.println("Now sleeping for "+minutes+" minutes");
+        }
     }
 
     private class LoopOnce extends Loop{

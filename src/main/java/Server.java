@@ -93,6 +93,18 @@ public class Server {
 	public static void setLoopInstance(Loop instance){
 		loop = instance;
 	}
+
+	private static Sleep sleepObject =null;
+
+	public static Sleep getSleepObject(){
+		if(sleepObject == null)
+			sleepObject  = new Sleep();
+		return sleepObject;
+	}
+
+	public static void setSleepObject(Sleep instance){
+		sleepObject  = instance;
+	}
 	/**
 	 * main() is used to start an instance of the Server
 	 */
@@ -271,7 +283,7 @@ public class Server {
 			if (ls.debugOn)
 			System.out.println(new Date() + "> " + "SESSION END (Going to sleep for " + checkPeriod
 								+ " minutes)");
-			Thread.sleep(checkPeriod * 1000 * 60);
+			getSleepObject().forMinutes(checkPeriod);
 		}
 	}
 
