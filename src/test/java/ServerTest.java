@@ -1,9 +1,11 @@
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.PrintStream;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.MimeMessage;
+import java.io.*;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -69,9 +71,45 @@ public class ServerTest {
         assertEquals(outputStream.toString(), "Now sleeping for 1 minutes\n");
         assertEquals(fileCount + 1, getSentMessageCount());
 
+        assertEquals(latestMail(SMTP_MESSAGE_FOLDER).getFrom()[0].toString(), "fifty5cup@163.com");
+        assertEquals(latestMail(SMTP_MESSAGE_FOLDER).getReplyTo()[0].toString(), "55 Cup <fifty5cup@163.com>");
 
     }
-    
+
+    @Test
+    public void can_read_mail_message() throws IOException, MessagingException {
+        MimeMessage message = latestMail(SMTP_MESSAGE_FOLDER);
+        assertEquals(message.getFrom()[0].toString(), "fifty5cup@163.com");
+        assertEquals(message.getReplyTo()[0].toString(), "55 Cup <fifty5cup@163.com>");
+    }
+
+    private MimeMessage latestMail(String dir) throws IOException, MessagingException {
+        File fl = new File(dir);
+        File[] files = fl.listFiles(new FileFilter() {
+            public boolean accept(File file) {
+                return file.isFile();
+            }
+        });
+        long lastMod = Long.MIN_VALUE;
+        File choice = null;
+        for (File file : files) {
+            if (file.lastModified() > lastMod) {
+                choice = file;
+                lastMod = file.lastModified();
+            }
+        }
+
+        Properties props = System.getProperties();
+        props.put("mail.host", "smtp.dummydomain.com");
+        props.put("mail.transport.protocol", "smtp");
+
+        Session mailSession = Session.getDefaultInstance(props, null);
+        InputStream source = new FileInputStream(choice);
+        MimeMessage message = new MimeMessage(mailSession, source);
+
+        return message;
+    }
+
     private int getSentMessageCount() {
         return new File(SMTP_MESSAGE_FOLDER).list().length;
     }
