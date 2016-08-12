@@ -62,11 +62,25 @@ class Template
 public class Server {
 	private static final String INBOX = "INBOX", POP_MAIL = "pop3",
 			SMTP_MAIL = "smtp";
+
+
+
 	private boolean debugOn = false;
 	private String _smtpHost = null, _pop3Host = null, _user = null,
 			_password = null, _listFile = null, _fromName = null;
 	private InternetAddress[] toList = null;
 
+	private static SystemExit systemExit;
+
+	public static SystemExit getSystemExitInstance(){
+		if(systemExit == null)
+			systemExit = new SystemExit();
+		return systemExit;
+	}
+
+	public static void setSystemExit(SystemExit instance){
+		systemExit = instance;
+	}
 	/**
 	 * main() is used to start an instance of the Server
 	 */
@@ -75,7 +89,7 @@ public class Server {
 		//
 		if (args.length < 6) {
 			System.err.println("Usage: java Server SMTPHost POP3Host user password EmailListFile CheckPeriodFromName");
-			System.exit(1);
+			getSystemExitInstance().invoke(1);
 		}
 
 		// Assign command line arguments to meaningful variable names
@@ -248,6 +262,6 @@ public class Server {
 			Thread.sleep(checkPeriod * 1000 * 60);
 		}
 	}
-	
+
 
 }
