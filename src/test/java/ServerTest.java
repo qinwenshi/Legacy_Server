@@ -1,3 +1,4 @@
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -9,6 +10,10 @@ import static org.junit.Assert.assertEquals;
  * Created by qinwenshi on 8/12/16.
  */
 public class ServerTest {
+
+    private SystemExitStub systemExitStub;
+    private ByteArrayOutputStream outputStream;
+
     class SystemExitStub extends SystemExit{
         public int statusCode = -1;
         @Override
@@ -19,15 +24,17 @@ public class ServerTest {
 
     }
 
+    @Before
+    public void setUp() throws Exception {
+        systemExitStub = new SystemExitStub();
+
+        outputStream = new ByteArrayOutputStream();
+        stubbingSystemExiting();
+        redirectErrAndOutStream();
+    }
+
     @Test
     public void x()  {
-        SystemExitStub systemExitStub = new SystemExitStub();
-        Server.setSystemExit(systemExitStub);
-
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-
-        System.setErr(new PrintStream(outContent));
-        System.setOut(new PrintStream(outContent));
 
         try {
             Server.main(new String[]{"a", "b", "c", "d"});
@@ -35,10 +42,19 @@ public class ServerTest {
             System.out.println(e.getMessage());
         }
 
-        assertEquals(outContent.toString(),
+        assertEquals(outputStream.toString(),
                 "Usage: java Server SMTPHost POP3Host user password EmailListFile CheckPeriodFromName\n" +
                 "System Exit with Status 1\n");
 
         assertEquals(systemExitStub.statusCode, 1);
+    }
+
+    private void stubbingSystemExiting() {
+        Server.setSystemExit(systemExitStub);
+    }
+
+    private void redirectErrAndOutStream() {
+        System.setErr(new PrintStream(outputStream));
+        System.setOut(new PrintStream(outputStream));
     }
 }
