@@ -82,6 +82,19 @@ public class ServerTest {
         assertEquals(message.getReplyTo()[0].toString(), "55 Cup <fifty5cup@163.com>");
     }
 
+
+    @Test
+    public void test_log_when_mail_box_is_not_empty() throws Exception {
+        setupLoopingAndSleeping();
+
+        MailLogger logger = new MailLogger(true);
+        MailLogger.setLoggerInstane(logger);
+
+        Server.main(new String[]{"127.0.0.1", "pop.163.com", "fifty5cup@163.com", "shiqinwen01", "emailList.txt","1"});
+        String output = outputStream.toString();
+        assertEquals(output.split("\\n").length, 5);
+    }
+
     private MimeMessage latestMail(String dir) throws IOException, MessagingException {
         File fl = new File(dir);
         File[] files = fl.listFiles(new FileFilter() {
@@ -133,4 +146,6 @@ public class ServerTest {
             return remainingLoopingCount-- > 0;
         }
     }
+
+
 }

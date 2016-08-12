@@ -112,8 +112,6 @@ public class Server {
 			fromName = args[6];
 
 		Server ls = new Server();
-		MailLogger logger = new MailLogger(false);
-		MailLogger.setLoggerInstane(logger);
 
 		while (getLoopInstance().shouldContinue()) {
 

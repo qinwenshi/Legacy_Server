@@ -31,10 +31,12 @@ public class Pop3MailBox {
     }
 
     public boolean isEmpty() throws MessagingException {
-        MailLogger.getLoggerInstance().log
+        boolean isEmpty = (folder.getMessageCount() == 0);
+        if(isEmpty)
+            MailLogger.getLoggerInstance().log
                 (new Date() + "> " + folder + " is empty");
 
-        return folder.getMessageCount() == 0;
+        return isEmpty;
     }
 
     public void closeEmptyFolder() throws MessagingException {
