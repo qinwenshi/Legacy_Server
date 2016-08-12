@@ -62,7 +62,7 @@ public class ServerTest {
     }
 
     @Test
-    public void x() throws Exception {
+    public void sendByReplyingExistingMail() throws Exception {
         setupLoopingAndSleeping();
         int fileCount = getSentMessageCount();
 
@@ -73,7 +73,6 @@ public class ServerTest {
 
         assertEquals(latestMail(SMTP_MESSAGE_FOLDER).getFrom()[0].toString(), "fifty5cup@163.com");
         assertEquals(latestMail(SMTP_MESSAGE_FOLDER).getReplyTo()[0].toString(), "55 Cup <fifty5cup@163.com>");
-
     }
 
     @Test
