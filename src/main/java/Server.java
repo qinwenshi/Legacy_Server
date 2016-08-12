@@ -54,7 +54,6 @@ class Template
 
 public class Server {
 
-
 	private boolean debugOn = false;
 
 	private static SystemExit systemExit;
@@ -88,6 +87,7 @@ public class Server {
 		return sleepObject;
 	}
 
+
 	public static void setSleepObject(Sleep instance){
 		sleepObject  = instance;
 	}
@@ -101,7 +101,7 @@ public class Server {
 			System.err.println("Usage: java Server SMTPHost POP3Host user password EmailListFile CheckPeriodFromName");
 			getSystemExitInstance().invoke(1);
 		}
-
+		boolean debugOn = false;
 		// Assign command line arguments to meaningful variable names
 		//
 		String smtpHost = args[0], pop3Host = args[1], user = args[2], password = args[3], emailListFile = args[4], fromName = null;
@@ -112,19 +112,19 @@ public class Server {
 			fromName = args[6];
 
 		Server ls = new Server();
-		ls.debugOn = false;
-		boolean	ls_debugOn = ls.debugOn;
+		MailLogger logger = new MailLogger(false);
+		MailLogger.setLoggerInstane(logger);
 
 		while (getLoopInstance().shouldContinue()) {
-			if (ls_debugOn)
-				System.out.println(new Date() + "> " + "SESSION START");
+
+			MailLogger.getLoggerInstance().log(new Date() + "> " + "SESSION START");
 
 			String ls_fromName = null;
 
 			if (fromName != null)
 				ls_fromName = fromName;
 
-			Pop3MailBox pop3MailBox = new Pop3MailBox(pop3Host, user, password, ls_debugOn);
+			Pop3MailBox pop3MailBox = new Pop3MailBox(pop3Host, user, password, debugOn);
 
 			pop3MailBox.open();
 
@@ -132,14 +132,14 @@ public class Server {
 				pop3MailBox.closeEmptyFolder();
 			}
 			else{
-				pop3MailBox.batchReplayMessages(smtpHost, user, password, ls_fromName, ls_debugOn, emailListFile);
+				pop3MailBox.batchReplayMessages(smtpHost, user, password, ls_fromName, emailListFile);
 				pop3MailBox.closeFolder();
 			}
 
 			pop3MailBox.closeMailBox();
-			if (ls_debugOn)
-				System.out.println(new Date() + "> " + "SESSION END (Going to sleep for " + checkPeriod
-								+ " minutes)");
+			MailLogger.getLoggerInstance()
+					.log( new Date() + "> " + "SESSION END (Going to sleep for " + checkPeriod
+					+ " minutes)");
 			getSleepObject().forMinutes(checkPeriod);
 		}
 	}

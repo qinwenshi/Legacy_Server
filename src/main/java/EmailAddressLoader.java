@@ -13,9 +13,9 @@ public class EmailAddressLoader {
     private String emailListFile;
     private boolean ls_debugOn;
 
-    public EmailAddressLoader(String emailListFile, boolean ls_debugOn) {
+    public EmailAddressLoader(String emailListFile) {
         this.emailListFile = emailListFile;
-        this.ls_debugOn = ls_debugOn;
+
     }
 
     public Vector load() throws IOException, AddressException {
@@ -29,8 +29,8 @@ public class EmailAddressLoader {
             vList.addElement(new InternetAddress(line));
         }
         listFile.close();
-        if (ls_debugOn)
-            System.out.println(new Date() + "> " + "Found " + vList.size() + " email ids in list");
+        MailLogger.getLoggerInstance().log
+            (new Date() + "> " + "Found " + vList.size() + " email ids in list");
         return vList;
     }
 }

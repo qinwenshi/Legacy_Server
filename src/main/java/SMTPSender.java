@@ -13,16 +13,16 @@ public class SMTPSender {
     private String ls_user;
     private String ls_password;
     private String ls_fromName;
-    private boolean ls_debugOn;
+
     private Address[] ls_toList;
     private Message message;
     private static final String SMTP_MAIL = "smtp";
-    public SMTPSender(String ls_smtpHost, String ls_user, String ls_password, String ls_fromName, boolean ls_debugOn, Address[] ls_toList, Message message) {
+    public SMTPSender(String ls_smtpHost, String ls_user, String ls_password, String ls_fromName, Address[] ls_toList, Message message) {
         this.ls_smtpHost = ls_smtpHost;
         this.ls_user = ls_user;
         this.ls_password = ls_password;
         this.ls_fromName = ls_fromName;
-        this.ls_debugOn = ls_debugOn;
+
         this.ls_toList = ls_toList;
         this.message = message;
     }
@@ -73,12 +73,12 @@ public class SMTPSender {
         Object content = message.getContent();
         String debugText = "Subject: " + subject + ", Sent date: " + sentDate;
         if (content instanceof Multipart) {
-            if (ls_debugOn)
-                System.out.println(new Date() + "> " + "Sending Multipart message (" + debugText + ")");
+            MailLogger.getLoggerInstance().log
+                (new Date() + "> " + "Sending Multipart message (" + debugText + ")");
             newMessage.setContent((Multipart) message.getContent());
         } else {
-            if (ls_debugOn)
-                System.out.println(new Date() + "> " + "Sending Text message (" + debugText + ")");
+            MailLogger.getLoggerInstance().log
+                (new Date() + "> " + "Sending Text message (" + debugText + ")");
             newMessage.setText((String) content);
         }
         Template template = new Template();
