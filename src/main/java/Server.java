@@ -1,9 +1,4 @@
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import java.io.IOException;
 import java.util.Date;
-import java.util.Properties;
-import java.util.Vector;
 
 class Template
 {
@@ -58,16 +53,9 @@ class Template
 
 
 public class Server {
-	private static final String INBOX = "INBOX", POP_MAIL = "pop3"
-			;
-
 
 
 	private boolean debugOn = false;
-	//private String _smtpHost = null, _pop3Host = null, _user = null,
-	//		_password = null, _listFile = null, _fromName = null;
-	//private InternetAddress[] toList = null;
-
 
 	private static SystemExit systemExit;
 
@@ -123,158 +111,38 @@ public class Server {
 		if (args.length > 6)
 			fromName = args[6];
 
-		// Process every "checkPeriod" minutes
-		//
 		Server ls = new Server();
 		ls.debugOn = false;
+		boolean	ls_debugOn = ls.debugOn;
 
 		while (getLoopInstance().shouldContinue()) {
-			if (ls.debugOn)
+			if (ls_debugOn)
 				System.out.println(new Date() + "> " + "SESSION START");
 
-			String ls_smtpHost = smtpHost,
-			ls_pop3Host = pop3Host,
-			ls_user = user,
-			ls_password = password,
-			ls_listFile = emailListFile,
-					ls_fromName = null;
-			boolean	ls_debugOn = ls.debugOn;
+			String ls_fromName = null;
 
 			if (fromName != null)
 				ls_fromName = fromName;
 
-			Vector vList = new EmailAddressLoader(emailListFile, ls_debugOn).load();
+			Pop3MailBox pop3MailBox = new Pop3MailBox(pop3Host, user, password, ls_debugOn);
 
-			Address[] ls_toList = new InternetAddress[vList.size()];
-			vList.copyInto(ls_toList);
-			vList = null;
-			
-			//
-			// Get individual emails and broadcast them to all email ids
-			//
-
-			// Get a Session object
-			//
-			Pop3MailBox pop3MailBox = new Pop3MailBox(pop3Host, ls_user, ls_password, ls_debugOn)
-					.open();
-
-			Folder folder = pop3MailBox.getFolder();
-			boolean done = pop3MailBox.isDone();
-			Store store = pop3MailBox.getStore();
+			pop3MailBox.open();
 
 			if (pop3MailBox.isEmpty()) {
-				if (ls_debugOn)
-					System.out.println(new Date() + "> " + folder + " is empty");
 				pop3MailBox.closeEmptyFolder();
 			}
 			else{
-				pop3MailBox.batchReplayMessages(ls_smtpHost, ls_user, ls_password, ls_fromName, ls_debugOn, ls_toList);
+				pop3MailBox.batchReplayMessages(smtpHost, user, password, ls_fromName, ls_debugOn, emailListFile);
 				pop3MailBox.closeFolder();
 			}
 
 			pop3MailBox.closeMailBox();
-			if (ls.debugOn)
-			System.out.println(new Date() + "> " + "SESSION END (Going to sleep for " + checkPeriod
+			if (ls_debugOn)
+				System.out.println(new Date() + "> " + "SESSION END (Going to sleep for " + checkPeriod
 								+ " minutes)");
 			getSleepObject().forMinutes(checkPeriod);
 		}
 	}
 
 
-
-
-	private static class Pop3MailBox {
-		private String pop3Host;
-		private String ls_user;
-		private String ls_password;
-		private boolean ls_debugOn;
-		private Store store;
-		private Folder folder;
-		private boolean done;
-
-		public Pop3MailBox(String pop3Host, String ls_user, String ls_password, boolean ls_debugOn) {
-			this.pop3Host = pop3Host;
-			this.ls_user = ls_user;
-			this.ls_password = ls_password;
-			this.ls_debugOn = ls_debugOn;
-		}
-
-
-		public void closeMailBox() throws MessagingException {
-			store.close();
-		}
-		public Store getStore() {
-			return store;
-		}
-
-		public Folder getFolder() {
-			return folder;
-		}
-
-		public boolean isDone() {
-			return done;
-		}
-
-		public boolean isEmpty() throws MessagingException {
-			return folder.getMessageCount() == 0;
-		}
-		public void closeEmptyFolder() throws MessagingException {
-			folder.close(false);
-		}
-
-		public void closeFolder() throws MessagingException {
-			folder.close(true);
-		}
-
-		public void batchReplayMessages(String ls_smtpHost, String ls_user, String ls_password, String ls_fromName, boolean ls_debugOn, Address[] ls_toList) throws MessagingException, IOException {
-			Message[] messages = this.loadMessages();
-
-			// Process each message
-			//
-			for (int i = 0; i < messages.length; i++) {
-				if (!messages[i].isSet(Flags.Flag.SEEN)) {
-					Message message = messages[i];
-					SMTPSender smtpSender = new SMTPSender(ls_smtpHost, ls_user, ls_password, ls_fromName, ls_debugOn, ls_toList, message);
-					smtpSender.doSend();
-				}
-				messages[i].setFlag(Flags.Flag.DELETED, true);
-			}
-		}
-
-		public Message[] loadMessages() throws MessagingException {
-			Message[] messages = folder.getMessages();
-			FetchProfile fp = new FetchProfile();
-			fp.add(FetchProfile.Item.ENVELOPE);
-			fp.add(FetchProfile.Item.FLAGS);
-			fp.add("X-Mailer");
-			folder.fetch(messages, fp);
-			return messages;
-		}
-		public Pop3MailBox open() throws MessagingException {
-			Properties sysProperties = System.getProperties();
-			Session session = Session.getDefaultInstance(sysProperties, null);
-			session.setDebug(ls_debugOn);
-
-			// Connect to host
-			//
-			store = session.getStore(Server.POP_MAIL);
-			store.connect(pop3Host, -1, ls_user, ls_password);
-
-			// Open the default folder
-			//
-			folder = store.getDefaultFolder();
-			if (folder == null)
-				throw new NullPointerException("No default mail folder");
-
-			folder = folder.getFolder(Server.INBOX);
-			if (folder == null)
-				throw new NullPointerException("Unable to get folder: " + folder);
-
-			done = false;
-			// Get message count
-			//
-			folder.open(Folder.READ_WRITE);
-			return this;
-		}
-	}
 }
