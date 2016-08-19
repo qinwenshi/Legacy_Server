@@ -17,6 +17,8 @@ public class SMTPSender {
     private Address[] toList;
 
     private static final String SMTP_MAIL = "smtp";
+    private Session session;
+
     public SMTPSender(String smtpHost, String user, String password, String fromName, Address[] toList) {
         this.smtpHost = smtpHost;
         this.user = user;
@@ -24,39 +26,34 @@ public class SMTPSender {
         this.fromName = fromName;
 
         this.toList = toList;
+
+        Properties props = new Properties();
+        props.put("mail.smtp.host", smtpHost);
+        session = Session.getDefaultInstance(props, null);
+
     }
 
     public void doSend(Message message) throws MessagingException, IOException {
-        String replyTo = user, subject, xMailer, messageText;
+        String replyTo = user, from = user, subject;
         Date sentDate;
-        int size;
-        Address[] a = null;
 
-        // Get Headers (from, to, subject, date, etc.)
-        //
-        if ((a = message.getFrom()) != null)
-            replyTo = a[0].toString();
+        Address[] fromAddresses = null;
+
+        if ((fromAddresses = message.getFrom()) != null)
+            replyTo = fromAddresses[0].toString();
 
         subject = message.getSubject();
         sentDate = message.getSentDate();
-        size = message.getSize();
-        String[] hdrs = message.getHeader("X-Mailer");
-        if (hdrs != null)
-            xMailer = hdrs[0];
-        String from = user;
 
-        // Send message
-        //
-        // create some properties and get the default Session
-        //
-        Properties props = new Properties();
-        props.put("mail.smtp.host", smtpHost);
-        Session session1 = Session.getDefaultInstance(props, null);
-
-        // create a message
-        //
         Address replyToList[] = {new InternetAddress(replyTo)};
-        Message newMessage = new MimeMessage(session1);
+
+        Message newMessage = composeMessage(message, replyTo, subject, sentDate, from, replyToList);
+
+        send(newMessage);
+    }
+
+    private Message composeMessage(Message message, String replyTo, String subject, Date sentDate, String from, Address[] replyToList) throws MessagingException, IOException {
+        Message newMessage = new MimeMessage(session);
         if (fromName != null)
             newMessage.setFrom(new InternetAddress(from, fromName
                     + " on behalf of " + replyTo));
@@ -67,8 +64,6 @@ public class SMTPSender {
         newMessage.setSubject(subject);
         newMessage.setSentDate(sentDate);
 
-        // Set message contents
-        //
         Object content = message.getContent();
         String debugText = "Subject: " + subject + ", Sent date: " + sentDate;
         if (content instanceof Multipart) {
@@ -83,10 +78,11 @@ public class SMTPSender {
         Template template = new Template();
 
         newMessage.setText(template.make());
+        return newMessage;
+    }
 
-        // Send newMessage
-        //
-        Transport transport = session1.getTransport(SMTP_MAIL);
+    private void send(Message newMessage) throws MessagingException {
+        Transport transport = session.getTransport(SMTP_MAIL);
         transport.connect(smtpHost, user, password);
         transport.sendMessage(newMessage, toList);
     }
