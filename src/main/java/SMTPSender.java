@@ -9,25 +9,25 @@ import java.util.Properties;
  * Created by qinwenshi on 8/13/16.
  */
 public class SMTPSender {
-    private String ls_smtpHost;
-    private String ls_user;
-    private String ls_password;
-    private String ls_fromName;
+    private String smtpHost;
+    private String user;
+    private String password;
+    private String fromName;
 
-    private Address[] ls_toList;
+    private Address[] toList;
 
     private static final String SMTP_MAIL = "smtp";
-    public SMTPSender(String ls_smtpHost, String ls_user, String ls_password, String ls_fromName, Address[] ls_toList) {
-        this.ls_smtpHost = ls_smtpHost;
-        this.ls_user = ls_user;
-        this.ls_password = ls_password;
-        this.ls_fromName = ls_fromName;
+    public SMTPSender(String smtpHost, String user, String password, String fromName, Address[] toList) {
+        this.smtpHost = smtpHost;
+        this.user = user;
+        this.password = password;
+        this.fromName = fromName;
 
-        this.ls_toList = ls_toList;
+        this.toList = toList;
     }
 
     public void doSend(Message message) throws MessagingException, IOException {
-        String replyTo = ls_user, subject, xMailer, messageText;
+        String replyTo = user, subject, xMailer, messageText;
         Date sentDate;
         int size;
         Address[] a = null;
@@ -43,27 +43,27 @@ public class SMTPSender {
         String[] hdrs = message.getHeader("X-Mailer");
         if (hdrs != null)
             xMailer = hdrs[0];
-        String from = ls_user;
+        String from = user;
 
         // Send message
         //
         // create some properties and get the default Session
         //
         Properties props = new Properties();
-        props.put("mail.smtp.host", ls_smtpHost);
+        props.put("mail.smtp.host", smtpHost);
         Session session1 = Session.getDefaultInstance(props, null);
 
         // create a message
         //
         Address replyToList[] = {new InternetAddress(replyTo)};
         Message newMessage = new MimeMessage(session1);
-        if (ls_fromName != null)
-            newMessage.setFrom(new InternetAddress(from, ls_fromName
+        if (fromName != null)
+            newMessage.setFrom(new InternetAddress(from, fromName
                     + " on behalf of " + replyTo));
         else
             newMessage.setFrom(new InternetAddress(from));
         newMessage.setReplyTo(replyToList);
-        newMessage.setRecipients(Message.RecipientType.BCC, ls_toList);
+        newMessage.setRecipients(Message.RecipientType.BCC, toList);
         newMessage.setSubject(subject);
         newMessage.setSentDate(sentDate);
 
@@ -87,7 +87,7 @@ public class SMTPSender {
         // Send newMessage
         //
         Transport transport = session1.getTransport(SMTP_MAIL);
-        transport.connect(ls_smtpHost, ls_user, ls_password);
-        transport.sendMessage(newMessage, ls_toList);
+        transport.connect(smtpHost, user, password);
+        transport.sendMessage(newMessage, toList);
     }
 }
