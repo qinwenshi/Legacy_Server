@@ -1,4 +1,9 @@
+import javax.mail.Address;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import java.io.IOException;
 import java.util.Date;
+import java.util.Vector;
 
 class Template
 {
@@ -128,7 +133,10 @@ public class Server {
 				pop3MailBox.closeEmptyFolder();
 			}
 			else{
-				pop3MailBox.batchReplayMessages(smtpHost, user, password, fromName, emailListFile);
+
+				SMTPSender smtpSender = new SMTPSender(smtpHost, user, password, fromName, loadReplyToAddresses(emailListFile));
+
+				pop3MailBox.batchReplayAllMessagesThrough(smtpSender);
 				pop3MailBox.closeFolder();
 			}
 
@@ -138,6 +146,15 @@ public class Server {
 					+ " minutes)");
 			getSleepObject().forMinutes(checkPeriod);
 		}
+	}
+
+	private static Address[] loadReplyToAddresses(String emailListFile) throws IOException, AddressException {
+		Vector vList = new EmailAddressLoader(emailListFile).load();
+
+		Address[] ls_toList = new InternetAddress[vList.size()];
+		vList.copyInto(ls_toList);
+		vList = null;
+		return ls_toList;
 	}
 
 

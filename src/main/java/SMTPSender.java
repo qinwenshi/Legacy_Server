@@ -15,19 +15,18 @@ public class SMTPSender {
     private String ls_fromName;
 
     private Address[] ls_toList;
-    private Message message;
+
     private static final String SMTP_MAIL = "smtp";
-    public SMTPSender(String ls_smtpHost, String ls_user, String ls_password, String ls_fromName, Address[] ls_toList, Message message) {
+    public SMTPSender(String ls_smtpHost, String ls_user, String ls_password, String ls_fromName, Address[] ls_toList) {
         this.ls_smtpHost = ls_smtpHost;
         this.ls_user = ls_user;
         this.ls_password = ls_password;
         this.ls_fromName = ls_fromName;
 
         this.ls_toList = ls_toList;
-        this.message = message;
     }
 
-    public void doSend() throws MessagingException, IOException {
+    public void doSend(Message message) throws MessagingException, IOException {
         String replyTo = ls_user, subject, xMailer, messageText;
         Date sentDate;
         int size;

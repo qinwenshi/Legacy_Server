@@ -1,9 +1,7 @@
 import javax.mail.*;
-import javax.mail.internet.InternetAddress;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
-import java.util.Vector;
 
 /**
  * Created by qinwenshi on 8/13/16.
@@ -47,21 +45,15 @@ public class Pop3MailBox {
         folder.close(true);
     }
 
-    public void batchReplayMessages(String ls_smtpHost, String ls_user, String ls_password, String ls_fromName, String emailListFile) throws MessagingException, IOException {
+    public void batchReplayAllMessagesThrough(SMTPSender smtpSender) throws MessagingException, IOException {
         Message[] messages = this.loadMessages();
 
-        Vector vList = new EmailAddressLoader(emailListFile).load();
-
-        Address[] ls_toList = new InternetAddress[vList.size()];
-        vList.copyInto(ls_toList);
-        vList = null;
         // Process each message
         //
         for (int i = 0; i < messages.length; i++) {
             if (!messages[i].isSet(Flags.Flag.SEEN)) {
                 Message message = messages[i];
-                SMTPSender smtpSender = new SMTPSender(ls_smtpHost, ls_user, ls_password, ls_fromName, ls_toList, message);
-                smtpSender.doSend();
+                smtpSender.doSend(message);
             }
             messages[i].setFlag(Flags.Flag.DELETED, true);
         }
